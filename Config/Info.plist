@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- The API this build talks to. Set per configuration in the project:
+	     Debug is the local Functions host, Release is production. -->
+	<key>SalesAPIBaseURL</key>
+	<string>$(SALES_API_BASE_URL)</string>
+	<!-- The scheme a phone's Microsoft sign-in returns on. Must match
+	     DEVICE_REDIRECT_URI on the Function App. -->
+	<key>SalesDeviceRedirectScheme</key>
+	<string>salesby2labs</string>
+	<!-- "Hey Siri, take a 2Labs note": Siri matches App Shortcut phrases
+	     against the app name and these alternatives (IDEAS.md §7,
+	     2026-08-14 — the phrase is platform-level, not per product). -->
+	<key>INAlternativeAppNames</key>
+	<array>
+		<dict>
+			<key>INAlternativeAppName</key>
+			<string>2Labs</string>
+			<key>INAlternativeAppNamePronunciationHint</key>
+			<string>two labs</string>
+		</dict>
+		<dict>
+			<key>INAlternativeAppName</key>
+			<string>Sales by 2Labs</string>
+		</dict>
+	</array>
+	<!-- Plain http only to this machine, for the local Functions host in
+	     development. Everything else stays HTTPS. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+</dict>
+</plist>
