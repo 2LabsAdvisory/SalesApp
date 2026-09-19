@@ -60,16 +60,30 @@ extension APIClient {
         ], cache: cache)
     }
 
-    /// Tasks and nudges (FR04), bucketed like the next steps. "Next step
-    /// overdue" nudges are left out: the phone lists the step itself, and
-    /// ticking it resolves that nudge on the server.
-    func tasks(_ bucket: NextStepBucket, scope: WorkScope, cache: ReadCache) async throws -> Loaded<TaskPage> {
-        try await read(TaskPage.self, "tasks", query: [
+    /// Tasks and nudges (FR04), bucketed like the next steps, leaving out the
+    /// nudge types the screen already shows another way. "Next step overdue"
+    /// is always left out: the phone lists the step itself, and ticking it
+    /// resolves that nudge on the server.
+    func tasks(_ bucket: NextStepBucket, scope: WorkScope, excluding: [String] = APIClient.shownAsSteps,
+               cache: ReadCache) async throws -> Loaded<TaskPage> {
+        try await read(TaskPage.self, "tasks", query: Self.taskQuery(bucket, scope: scope, excluding: excluding), cache: cache)
+    }
+
+    /// Nudges the Tasks tab shows as a deal's next step row instead.
+    static let shownAsSteps = ["stepdue"]
+
+    /// Nudges Today shows another way: the step row, and the deals under
+    /// "Going quiet" — which are exactly what "Quiet deal" and "No next step"
+    /// are about. Listing them in both sections would show one deal twice.
+    static let shownOnToday = ["stepdue", "quiet", "nostep"]
+
+    static func taskQuery(_ bucket: NextStepBucket, scope: WorkScope, excluding: [String]) -> [URLQueryItem] {
+        [
             URLQueryItem(name: "bucket", value: bucket.taskBucket),
             URLQueryItem(name: "owner", value: scope == .mine ? "me" : "all"),
-            URLQueryItem(name: "except_nudge", value: "stepdue"),
+            URLQueryItem(name: "except_nudge", value: excluding.joined(separator: ",")),
             URLQueryItem(name: "limit", value: "100")
-        ], cache: cache)
+        ]
     }
 
     /// Done, and its undo. The same completion the desktop uses — the phone
