@@ -55,6 +55,16 @@ import Testing
         #expect(NextStepBucket.overdue.taskBucket == "overdue")
     }
 
+    @Test func today_leaves_out_every_nudge_it_already_shows_as_a_deal() {
+        func excluded(_ list: [String]) -> String? {
+            APIClient.taskQuery(.overdue, scope: .mine, excluding: list).first { $0.name == "except_nudge" }?.value
+        }
+        #expect(excluded(APIClient.shownOnToday) == "stepdue,quiet,nostep")
+        #expect(excluded(APIClient.shownAsSteps) == "stepdue")
+        let owner = APIClient.taskQuery(.today, scope: .mine, excluding: []).first { $0.name == "owner" }?.value
+        #expect(owner == "me", "Today is mine (FR16 §8, decision 2)")
+    }
+
     @Test func the_task_list_leaves_out_the_nudge_the_step_row_already_is() {
         // Decoded from exactly what /api/tasks returns for counts.
         let page = decode(TaskPage.self, ["data": [], "counts": ["today": 1, "overdue": 2, "upcoming": 3, "completed": 4, "nudges_open": 1]])
