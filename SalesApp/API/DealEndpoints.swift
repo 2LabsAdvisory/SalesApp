@@ -33,6 +33,10 @@ enum NextStepBucket: String, CaseIterable, Identifiable, Sendable {
     case today, overdue, later
     var id: String { rawValue }
     var label: String { rawValue.capitalized }
+
+    /// The same bucket on `/api/tasks`, which calls "later" "upcoming". Both
+    /// put an undated item there.
+    var taskBucket: String { self == .later ? "upcoming" : rawValue }
 }
 
 enum WorkScope: String, Sendable {
@@ -54,6 +58,28 @@ extension APIClient {
             URLQueryItem(name: "scope", value: scope.rawValue),
             URLQueryItem(name: "offset", value: String(offset))
         ], cache: cache)
+    }
+
+    /// Tasks and nudges (FR04), bucketed like the next steps. "Next step
+    /// overdue" nudges are left out: the phone lists the step itself, and
+    /// ticking it resolves that nudge on the server.
+    func tasks(_ bucket: NextStepBucket, scope: WorkScope, cache: ReadCache) async throws -> Loaded<TaskPage> {
+        try await read(TaskPage.self, "tasks", query: [
+            URLQueryItem(name: "bucket", value: bucket.taskBucket),
+            URLQueryItem(name: "owner", value: scope == .mine ? "me" : "all"),
+            URLQueryItem(name: "except_nudge", value: "stepdue"),
+            URLQueryItem(name: "limit", value: "100")
+        ], cache: cache)
+    }
+
+    /// Done, and its undo. The same completion the desktop uses — the phone
+    /// does not have a second path (FR16 §7).
+    func completeTask(_ id: String) async throws {
+        _ = try await send("POST", "tasks/\(id)/complete")
+    }
+
+    func reopenTask(_ id: String) async throws {
+        _ = try await send("POST", "tasks/\(id)/reopen")
     }
 
     func deals(_ filter: PipelineFilter, me userId: String?, offset: Int = 0, limit: Int = 25, cache: ReadCache) async throws -> Loaded<DealPage> {
