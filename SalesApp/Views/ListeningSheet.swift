@@ -7,6 +7,8 @@ import SwiftUI
 /// Stop saves the note through the same path Siri uses, so the two are
 /// identical (FR15 §7).
 struct ListeningSheet: View {
+    /// Set when the note is taken from a deal, so it files against it.
+    var opportunityId: String?
     @Environment(\.dismiss) private var dismiss
     @State private var capture = SpeechCapture()
     @State private var message: String?
@@ -46,11 +48,11 @@ struct ListeningSheet: View {
                 .accessibilityHidden(true)
 
             Text(title)
-                .font(.system(size: 18, weight: .bold))
+                .font(.scaled(18, .bold))
                 .foregroundStyle(Color.ink)
 
             Text("Say what happened. Names, numbers, dates — it sorts them out after.")
-                .font(.system(size: 13.5))
+                .font(.scaled(13.5))
                 .foregroundStyle(Color.ink2)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 250)
@@ -76,7 +78,7 @@ struct ListeningSheet: View {
                 capture.cancel()
                 dismiss()
             }
-            .font(.system(size: 13, weight: .medium))
+            .font(.scaled(13, .medium))
             .foregroundStyle(Color.ink2)
             .padding(.top, 12)
             .disabled(capture.phase != .listening)
@@ -94,7 +96,7 @@ struct ListeningSheet: View {
     private func explanation(_ text: String) -> some View {
         VStack(spacing: 18) {
             Text(text)
-                .font(.system(size: 14))
+                .font(.scaled(14))
                 .foregroundStyle(Color.ink2)
                 .multilineTextAlignment(.center)
                 .padding(.top, 48)
@@ -112,7 +114,7 @@ struct ListeningSheet: View {
     private func stopAndSave() async {
         let text = await capture.stop()
         do {
-            switch try await AppServices.shared.capture.capture(text, source: .appRecorder) {
+            switch try await AppServices.shared.capture.capture(text, source: .appRecorder, about: opportunityId) {
             case .nothingHeard:
                 message = "Nothing was heard, so nothing was saved."
             case .saved, .savedAwaitingSignIn:

@@ -85,6 +85,7 @@ final class AppModel {
         if credentials == nil, phase != .launching {
             phase = .signedOut
             isLocked = false
+            await services.readCache.clear()
         }
     }
 
@@ -133,6 +134,7 @@ final class AppModel {
             $0.userEmail = me.user.email
             $0.organizationId = me.organization.id
             $0.organizationName = me.organization.name
+            $0.organizationCurrency = me.organization.currency
         }
         try await services.queue.adoptUnowned(
             userId: me.user.id, organizationId: me.organization.id, organizationName: me.organization.name)
@@ -153,6 +155,7 @@ final class AppModel {
             try await services.tokens.update {
                 $0.organizationId = organization.id
                 $0.organizationName = organization.name
+                $0.organizationCurrency = organization.currency
             }
             credentials = await services.tokens.current()
         }
@@ -161,6 +164,7 @@ final class AppModel {
 
     func signOut() async {
         await services.api.signOut()
+        await services.readCache.clear()
         credentials = nil
         organizations = []
         isLocked = false

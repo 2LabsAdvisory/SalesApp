@@ -17,7 +17,7 @@ struct OrganizationPickerView: View {
                 .foregroundStyle(Color.ink)
                 .accessibilityAddTraits(.isHeader)
             Text("Notes you take go to this organization. You can change it later from your account.")
-                .font(.system(size: 14))
+                .font(.scaled(14))
                 .foregroundStyle(Color.ink2)
                 .padding(.top, 8)
                 .padding(.bottom, 22)
@@ -25,7 +25,7 @@ struct OrganizationPickerView: View {
             OrganizationList(organizations: app.organizations, selection: $selection)
 
             if let error {
-                Text(error).font(.system(size: 13)).foregroundStyle(Color.failure).padding(.top, 12)
+                Text(error).font(.scaled(13)).foregroundStyle(Color.failure).padding(.top, 12)
             }
 
             Button("Continue") { Task { await choose() } }

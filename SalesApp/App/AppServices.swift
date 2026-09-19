@@ -13,11 +13,13 @@ final class AppServices: Sendable {
     let queue: NoteQueue
     let sender: NoteSender
     let capture: CaptureService
+    let readCache: ReadCache
 
     private init() {
         tokens = TokenStore()
         api = APIClient(tokens: tokens)
         queue = NoteQueue()
+        readCache = ReadCache()
         let noteSender = NoteSender(queue: queue, api: api)
         sender = noteSender
         capture = CaptureService(queue: queue, tokens: tokens, send: { await noteSender.pump() })

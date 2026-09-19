@@ -26,6 +26,9 @@ struct QueuedNote: Codable, Sendable, Identifiable, Equatable {
     var userId: String?
     var organizationId: String?
     var organizationName: String?
+    /// The deal it was said about, when it was taken from a deal (FR16 §4.4).
+    /// Checked against the organization by the server, like any link.
+    var opportunityId: String?
 
     var state: State = .waiting
     var attempts: Int = 0

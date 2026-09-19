@@ -10,14 +10,14 @@ struct NoteDetailView: View {
         VStack(spacing: 0) {
             ScreenHeader(title: "Note") {
                 Button("Done") { dismiss() }
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.scaled(15, .semibold))
                     .foregroundStyle(Color.amber600)
             }
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     Card {
                         Text(note.body)
-                            .font(.system(size: 15))
+                            .font(.scaled(15))
                             .foregroundStyle(Color.ink)
                             .textSelection(.enabled)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -53,9 +53,9 @@ struct NoteDetailView: View {
     private func detail(_ label: String, _ value: String, isLast: Bool = false) -> some View {
         VStack(spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
-                Text(label).font(.system(size: 13)).foregroundStyle(Color.ink2)
+                Text(label).font(.scaled(13)).foregroundStyle(Color.ink2)
                 Spacer(minLength: 16)
-                Text(value).font(.system(size: 13, weight: .medium)).foregroundStyle(Color.ink)
+                Text(value).font(.scaled(13, .medium)).foregroundStyle(Color.ink)
                     .multilineTextAlignment(.trailing)
             }
             .padding(.horizontal, 14)

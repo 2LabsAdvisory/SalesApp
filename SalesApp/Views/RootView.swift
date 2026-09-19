@@ -30,53 +30,67 @@ struct RootView: View {
     }
 }
 
-/// The shell: one screen above, the tab bar below.
-///
-/// **The tab bar is honest** (FR15 §5.5). Home, Pipeline and Tasks are shown
-/// and visibly disabled, not hidden: a first build that hides them feels
-/// finished when it is a third of an app, and someone who meets the other tabs
-/// later has learned the app twice. They arrive in FR16.
+/// The shell: one screen above, the tab bar below. Today is where the app
+/// opens (FR16 §4.1). Every tab stays alive when another is showing, so going
+/// back to one finds it where it was left.
 struct MainShell: View {
+    enum Tab: String, CaseIterable, Identifiable {
+        case today = "Today", pipeline = "Pipeline", notes = "Notes", tasks = "Tasks"
+        var id: Self { self }
+        var symbol: String {
+            switch self {
+            case .today: "house"
+            case .pipeline: "chart.bar"
+            case .notes: "mic"
+            case .tasks: "checklist"
+            }
+        }
+    }
+
+    @State private var tab: Tab = .today
+
     var body: some View {
         VStack(spacing: 0) {
-            NotesView()
-            TabBar()
+            ZStack {
+                screen(.today) { TodayView() }
+                screen(.pipeline) { PipelineView() }
+                screen(.notes) { NotesView() }
+                screen(.tasks) { TasksView() }
+            }
+            TabBar(selection: $tab)
         }
         .background(Color.appBackground)
+    }
+
+    private func screen<Content: View>(_ which: Tab, @ViewBuilder content: () -> Content) -> some View {
+        content()
+            .opacity(tab == which ? 1 : 0)
+            .allowsHitTesting(tab == which)
+            .accessibilityHidden(tab != which)
     }
 }
 
 struct TabBar: View {
-    private struct Item: Identifiable {
-        let id: String
-        let symbol: String
-        let enabled: Bool
-    }
-
-    private let items = [
-        Item(id: "Home", symbol: "house", enabled: false),
-        Item(id: "Pipeline", symbol: "chart.bar", enabled: false),
-        Item(id: "Notes", symbol: "mic", enabled: true),
-        Item(id: "Tasks", symbol: "checklist", enabled: false)
-    ]
+    @Binding var selection: MainShell.Tab
 
     var body: some View {
         HStack(spacing: 0) {
-            ForEach(items) { item in
-                VStack(spacing: 3) {
-                    Image(systemName: item.symbol)
-                        .font(.system(size: 19, weight: .regular))
-                        .foregroundStyle(item.enabled ? Color.amber : Color.ink3)
-                    Text(item.id)
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(item.enabled ? Color.amber600 : Color.ink3)
+            ForEach(MainShell.Tab.allCases) { item in
+                let on = selection == item
+                Button { selection = item } label: {
+                    VStack(spacing: 3) {
+                        Image(systemName: item.symbol)
+                            .font(.system(size: 19, weight: .regular))
+                            .foregroundStyle(on ? Color.amber : Color.ink3)
+                        Text(item.rawValue)
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(on ? Color.amber600 : Color.ink3)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .contentShape(Rectangle())
                 }
-                .opacity(item.enabled ? 1 : 0.45)
-                .frame(maxWidth: .infinity)
-                .accessibilityElement(children: .combine)
-                .accessibilityAddTraits(item.enabled ? [.isButton, .isSelected] : [.isButton])
-                .accessibilityHint(item.enabled ? "" : "Not available yet")
-                .disabled(!item.enabled)
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(on ? [.isSelected] : [])
             }
         }
         .padding(.top, 9)

@@ -6,22 +6,12 @@ struct NotesView: View {
     @Environment(AppModel.self) private var app
     @State private var model = NotesModel()
     @State private var isListening = false
-    @State private var showsAccount = false
     @State private var failedNote: QueuedNote?
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                ScreenHeader(title: "Notes") {
-                    Button {
-                        showsAccount = true
-                    } label: {
-                        Image(systemName: "person.crop.circle")
-                            .font(.system(size: 22))
-                            .foregroundStyle(Color.ink2)
-                    }
-                    .accessibilityLabel("Account")
-                }
+                TabHeader(title: "Notes") { AccountButton() }
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
@@ -44,10 +34,6 @@ struct NotesView: View {
                 .presentationDetents([.medium])
                 .presentationCornerRadius(20)
                 .presentationBackground(Color.surface)
-        }
-        .sheet(isPresented: $showsAccount) {
-            AccountSheet()
-                .presentationDetents([.large])
         }
         .alert(
             "This note wasn't sent",
@@ -79,7 +65,7 @@ struct NotesView: View {
             }
             if !app.isOnline {
                 Text("They’ll go up on their own when you have signal. You can keep capturing.")
-                    .font(.system(size: 12.5))
+                    .font(.scaled(12.5))
                     .foregroundStyle(Color.ink2)
                     .padding(.horizontal, 2)
                     .padding(.top, 2)
@@ -106,7 +92,7 @@ struct NotesView: View {
 
         if let error = model.loadError {
             Text(error)
-                .font(.system(size: 12.5))
+                .font(.scaled(12.5))
                 .foregroundStyle(Color.failure)
                 .padding(.top, 12)
         }
@@ -164,19 +150,7 @@ struct NotesView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 6) {
-            Text("Say")
-                .foregroundStyle(Color.ink2)
-            Text("“Hey Siri, take a 2Labs note”")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Color.ink)
-            Text("and keep walking.")
-                .foregroundStyle(Color.ink2)
-        }
-        .font(.system(size: 14))
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: .infinity)
-        .padding(.top, 60)
+        SiriPrompt().padding(.top, 36)
     }
 
     private var micButton: some View {

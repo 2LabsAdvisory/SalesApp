@@ -145,13 +145,14 @@ final class NoteSender: NSObject, URLSessionDataDelegate, @unchecked Sendable {
             let source: NoteSource
             let clientId: String
             let capturedAt: Date
+            let opportunityId: String?
         }
         let directory = await uploadsDirectory
         try NoteQueue.prepare(directory)
         let file = directory.appending(path: "\(note.id.uuidString).json")
         let data = try JSONEncoder.api.encode(Body(
             body: note.body, source: note.source, clientId: note.id.uuidString.lowercased(),
-            capturedAt: note.capturedAt))
+            capturedAt: note.capturedAt, opportunityId: note.opportunityId))
         try data.write(to: file, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
         return file
     }

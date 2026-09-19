@@ -30,7 +30,7 @@ struct SignInView: View {
                 BrandMark()
                 VStack(alignment: .leading, spacing: 0) {
                     Text("Sales").font(.display(19, weight: .heavy)).foregroundStyle(Color.ink)
-                    Text("by 2Labs").font(.system(size: 11)).foregroundStyle(Color.ink2)
+                    Text("by 2Labs").font(.scaled(11)).foregroundStyle(Color.ink2)
                 }
             }
             .padding(.bottom, 34)
@@ -49,14 +49,14 @@ struct SignInView: View {
 
             if let error {
                 Text(error)
-                    .font(.system(size: 13))
+                    .font(.scaled(13))
                     .foregroundStyle(Color.failure)
                     .padding(.top, 14)
                     .accessibilityAddTraits(.updatesFrequently)
             }
 
             Text("Your organization decides who gets in. If you’re not recognised, ask your admin for an invite.")
-                .font(.system(size: 12))
+                .font(.scaled(12))
                 .foregroundStyle(Color.ink3)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
@@ -74,7 +74,7 @@ struct SignInView: View {
     private var emailStep: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("No password. Use your work Microsoft account, or we’ll email you a code.")
-                .font(.system(size: 14))
+                .font(.scaled(14))
                 .foregroundStyle(Color.ink2)
                 .padding(.top, 8)
                 .padding(.bottom, 22)
@@ -91,7 +91,7 @@ struct SignInView: View {
 
             HStack(spacing: 12) {
                 Rectangle().fill(Color.border).frame(height: 1)
-                Text("or").font(.system(size: 12)).foregroundStyle(Color.ink3)
+                Text("or").font(.scaled(12)).foregroundStyle(Color.ink3)
                 Rectangle().fill(Color.border).frame(height: 1)
             }
             .padding(.vertical, 14)
@@ -114,7 +114,7 @@ struct SignInView: View {
     private func codeStep(_ sentTo: String) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("If \(sentTo) has an account, a 7-digit code is on its way. It works once, for a few minutes.")
-                .font(.system(size: 14))
+                .font(.scaled(14))
                 .foregroundStyle(Color.ink2)
                 .padding(.top, 8)
                 .padding(.bottom, 22)
@@ -135,7 +135,7 @@ struct SignInView: View {
                 code = ""
                 error = nil
             }
-            .font(.system(size: 13, weight: .medium))
+            .font(.scaled(13, .medium))
             .foregroundStyle(Color.ink2)
             .frame(maxWidth: .infinity)
             .padding(.top, 14)
@@ -144,7 +144,7 @@ struct SignInView: View {
 
     private func field(_ prompt: String, text: Binding<String>) -> some View {
         TextField(prompt, text: text)
-            .font(.system(size: 14.5))
+            .font(.scaled(14.5))
             .padding(13)
             .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.border, lineWidth: 1))
     }

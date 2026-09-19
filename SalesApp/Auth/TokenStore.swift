@@ -17,6 +17,7 @@ struct Credentials: Codable, Sendable, Equatable {
     var userEmail: String?
     var organizationId: String?
     var organizationName: String?
+    var organizationCurrency: String?
 
     init(bundle: TokenBundle) {
         accessToken = bundle.accessToken

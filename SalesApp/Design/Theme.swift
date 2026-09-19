@@ -38,14 +38,38 @@ extension Color {
 }
 
 extension Font {
+    /// Text at the prototype's size, scaling with Dynamic Type (FR16 §7).
+    ///
+    /// Each prototype size maps to the iOS text style it sits closest to, so
+    /// the default rendering matches the mockup and a reader who has asked
+    /// for larger text gets it — up to the accessibility sizes. Fixed point
+    /// sizes are kept only for icons inside fixed-size badges.
+    static func scaled(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
+        .system(textStyle(for: size), weight: weight)
+    }
+
     /// Plus Jakarta Sans in the prototype; the system face until the font is bundled.
     static func display(_ size: CGFloat, weight: Font.Weight = .bold) -> Font {
-        .system(size: size, weight: weight)
+        .system(textStyle(for: size), weight: weight)
     }
 
     /// JetBrains Mono in the prototype, used for section labels and timers.
     static func mono(_ size: CGFloat, weight: Font.Weight = .semibold) -> Font {
-        .system(size: size, weight: weight, design: .monospaced)
+        .system(textStyle(for: size), design: .monospaced, weight: weight)
+    }
+
+    static func textStyle(for size: CGFloat) -> Font.TextStyle {
+        switch size {
+        case 26...: .title
+        case 21..<26: .title2
+        case 18.5..<21: .title3
+        case 16.5..<18.5: .body
+        case 15.5..<16.5: .callout
+        case 13.75..<15.5: .subheadline
+        case 12.75..<13.75: .footnote
+        case 11.75..<12.75: .caption
+        default: .caption2
+        }
     }
 }
 
@@ -132,11 +156,11 @@ struct ListRow<Accessory: View>: View {
                 icon
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.scaled(14, .semibold))
                         .foregroundStyle(Color.ink)
                         .lineLimit(2)
                     Text(subtitle)
-                        .font(.system(size: 12.5))
+                        .font(.scaled(12.5))
                         .foregroundStyle(Color.ink2)
                         .lineLimit(2)
                 }
@@ -162,21 +186,41 @@ extension ListRow where Accessory == EmptyView {
 /// The amber, one-per-screen action.
 struct PrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 15, weight: .semibold))
+        Styled(configuration: configuration)
+    }
+
+    // A disabled action has to look it: the style reads isEnabled itself,
+    // because a custom ButtonStyle does not dim on its own.
+    private struct Styled: View {
+        let configuration: Configuration
+        @Environment(\.isEnabled) private var isEnabled
+
+        var body: some View {
+            configuration.label
+            .font(.scaled(15, .semibold))
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding(14)
             .background(Color.amber.opacity(configuration.isPressed ? 0.85 : 1),
                         in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+            .opacity(isEnabled ? 1 : 0.4)
+        }
     }
 }
 
 /// White with a hairline border.
 struct SecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 15, weight: .semibold))
+        Styled(configuration: configuration)
+    }
+
+    private struct Styled: View {
+        let configuration: Configuration
+        @Environment(\.isEnabled) private var isEnabled
+
+        var body: some View {
+            configuration.label
+            .font(.scaled(15, .semibold))
             .foregroundStyle(Color.ink)
             .frame(maxWidth: .infinity)
             .padding(14)
@@ -184,6 +228,8 @@ struct SecondaryButtonStyle: ButtonStyle {
                         in: RoundedRectangle(cornerRadius: 11, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous)
                 .strokeBorder(Color.border, lineWidth: 1))
+            .opacity(isEnabled ? 1 : 0.4)
+        }
     }
 }
 
@@ -199,7 +245,7 @@ struct Notice: View {
             Image(systemName: systemName)
             text
         }
-        .font(.system(size: 12.5))
+        .font(.scaled(12.5))
         .foregroundStyle(tone == .warning ? Color.warning : Color.violet)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 13)

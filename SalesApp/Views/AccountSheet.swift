@@ -15,7 +15,7 @@ struct AccountSheet: View {
         VStack(spacing: 0) {
             ScreenHeader(title: "Account") {
                 Button("Done") { dismiss() }
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.scaled(15, .semibold))
                     .foregroundStyle(Color.amber600)
             }
 
@@ -40,7 +40,7 @@ struct AccountSheet: View {
                         OrganizationList(organizations: app.organizations, selection: $selection)
                             .onChange(of: selection) { _, id in Task { await switchTo(id) } }
                         if let error {
-                            Text(error).font(.system(size: 12.5)).foregroundStyle(Color.failure).padding(.top, 8)
+                            Text(error).font(.scaled(12.5)).foregroundStyle(Color.failure).padding(.top, 8)
                         }
                         Spacer().frame(height: 18)
                     }
@@ -50,10 +50,10 @@ struct AccountSheet: View {
                         Toggle(isOn: $app.requiresUnlock) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Ask for Face ID when I come back")
-                                    .font(.system(size: 14, weight: .semibold))
+                                    .font(.scaled(14, .semibold))
                                     .foregroundStyle(Color.ink)
                                 Text("Siri can always take a note, locked or not.")
-                                    .font(.system(size: 12.5))
+                                    .font(.scaled(12.5))
                                     .foregroundStyle(Color.ink2)
                             }
                         }

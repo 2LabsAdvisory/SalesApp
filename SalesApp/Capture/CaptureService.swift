@@ -23,7 +23,9 @@ struct CaptureService: Sendable {
     /// Starts sending. The background sender in the app; nothing in tests.
     let send: @Sendable () async -> Void
 
-    func capture(_ text: String, source: NoteSource, at capturedAt: Date = Date()) async throws -> Outcome {
+    func capture(
+        _ text: String, source: NoteSource, about opportunityId: String? = nil, at capturedAt: Date = Date()
+    ) async throws -> Outcome {
         let body = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !body.isEmpty else { return .nothingHeard }
 
@@ -37,7 +39,8 @@ struct CaptureService: Sendable {
             capturedAt: capturedAt,
             userId: credentials?.userId,
             organizationId: credentials?.organizationId,
-            organizationName: credentials?.organizationName)
+            organizationName: credentials?.organizationName,
+            opportunityId: opportunityId)
         try await queue.add(note)
 
         await send()

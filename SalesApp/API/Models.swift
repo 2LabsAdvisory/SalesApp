@@ -22,6 +22,8 @@ struct Organization: Decodable, Sendable, Identifiable, Hashable {
     let id: String
     let name: String
     let role: String?
+    /// One currency per organization, set at provisioning.
+    let currency: String?
 }
 
 struct UserProfile: Decodable, Sendable {
